@@ -7,19 +7,21 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-// NewJSONFromFile returns an instance of the JSON checker. It reads its
-// data from a file which its location has been specified through the path
-// parameter
-func NewMongo(mongoDbConfString string) *MONGO {
+// NewMongo returns an instance of the Mongo checker. It reads its
+// data from a collection confCollectionName inside the database that could be reach with the mongoDbConfString
+// For more informations about this configuration string, please check the MGO driver : https://godoc.org/labix.org/v2/mgo#Dial
+func NewMongo(mongoDbConfString string, confCollectionName string) *MONGO {
 	return &MONGO{
-		confString: mongoDbConfString,
+		confString:         mongoDbConfString,
+		confCollectionName: confCollectionName,
 	}
 }
 
-// JSON represents the JSON Checker. It reads an io.Reader and then pulls a value out of a map[string]interface{}.
+// MONGO represents the MONGO Checker. It reads form the mongo collection and then pulls a value out of a map[string]interface{}.
 type MONGO struct {
-	values     map[string]interface{}
-	confString string
+	values             map[string]interface{}
+	confString         string
+	confCollectionName string
 }
 
 type MongoConf struct {
@@ -27,28 +29,27 @@ type MongoConf struct {
 	Value interface{}
 }
 
-//Setup initializes the JSON Checker
+//Setup initializes the Mongo Checker
 func (m *MONGO) Setup() error {
 	session, err := mgo.Dial(m.confString)
 	if err != nil {
 		return err
 	}
-	confCollection := session.DB("").C("confs")
+	confCollection := session.DB("").C(m.confCollectionName)
 	results := []MongoConf{}
+	m.values = make(map[string]interface{})
 	// results := []bson.D{}
 	err = confCollection.Find(nil).All(&results)
 	if err != nil {
-		fmt.Println("could not retrieve configurations")
+		fmt.Println("could not retrieve configurations from mongo")
+		return err
 	} else {
-		fmt.Println(results)
+		for _, conf := range results {
+			m.values[conf.Name] = conf.Value
+		}
+		// fmt.Println(m.values)
+		return nil
 	}
-	m.values = make(map[string]interface{})
-
-	for _, conf := range results {
-		m.values[conf.Name] = conf.Value
-	}
-	fmt.Println(m.values)
-	return nil
 }
 
 func (m *MONGO) value(name string) (interface{}, error) {
@@ -60,7 +61,7 @@ func (m *MONGO) value(name string) (interface{}, error) {
 	return val, nil
 }
 
-// Int returns an int if it exists within the marshalled JSON io.Reader.
+// Int returns an int if it exists in the mongo collection.
 func (m *MONGO) Int(name string) (int, error) {
 	v, err := m.value(name)
 	if err != nil {
@@ -75,7 +76,7 @@ func (m *MONGO) Int(name string) (int, error) {
 	return int(f), nil
 }
 
-// Bool returns a bool if it exists within the marshalled JSON io.Reader.
+// Bool returns a bool if it exists in the mongo collection.
 func (m *MONGO) Bool(name string) (bool, error) {
 	v, err := m.value(name)
 	if err != nil {
@@ -90,7 +91,7 @@ func (m *MONGO) Bool(name string) (bool, error) {
 	return b, nil
 }
 
-// String returns a string if it exists within the marshalled JSON io.Reader.
+// String returns a string if it exists in the mongo collection.
 func (m *MONGO) String(name string) (string, error) {
 	v, err := m.value(name)
 	if err != nil {

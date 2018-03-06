@@ -22,12 +22,12 @@ func normalFailFunc(t *testing.T) func() {
 }
 
 func TestSetupMongoConf(t *testing.T) {
-	mongoConf := NewMongo("mongodb://127.0.0.1:27017/test_conf_db")
+	mongoConf := NewMongo("mongodb://127.0.0.1:27017/test_conf_db", "confs")
 	mongoConf.Setup()
 }
 
 func TestMongoStrings(t *testing.T) {
-	mongoConf := NewMongo("mongodb://127.0.0.1:27017/test_conf_db")
+	mongoConf := NewMongo("mongodb://127.0.0.1:27017/test_conf_db", "confs")
 	mongoConf.Setup()
 
 	ff := normalFailFunc(t)
