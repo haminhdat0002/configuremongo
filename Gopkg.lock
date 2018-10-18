@@ -2,14 +2,20 @@
 
 
 [[projects]]
-  branch = "v2"
-  name = "gopkg.in/mgo.v2"
-  packages = [".","bson","internal/json","internal/sasl","internal/scram"]
-  revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+  branch = "master"
+  name = "github.com/globalsign/mgo"
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram"
+  ]
+  revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "41f9d12acacd972a6d5b43caff1b9f4e610755e82d23b406d5dc174da9bedf0a"
+  inputs-digest = "765c26db55235fb843f1f48799cd84a75b8b448ef6ad2dce30811ed2f8d9a5bc"
   solver-name = "gps-cdcl"
   solver-version = 1

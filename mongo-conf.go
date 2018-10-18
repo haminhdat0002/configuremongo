@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	mgo "gopkg.in/mgo.v2"
+	mgo "github.com/globalsign/mgo"
 )
 
 // NewMongo returns an instance of the Mongo checker. It reads its
